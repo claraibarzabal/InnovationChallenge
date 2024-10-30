@@ -1,157 +1,198 @@
 # Starter pipeline
 # Start with a minimal pipeline that you can customize to build and deploy your code.
+# Este pipeline está diseñado para construir y desplegar los recursos de tu proyecto.
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 # Azure DevOps Pipeline para el Proyecto Agro
-# Este pipeline está diseñado para construir y desplegar los recursos de tu proyecto.
 
-trigger:
-- main  # El pipeline se activará con cada commit en la rama 'main'
 
-pool:
-  vmImage: ubuntu-latest  # Usa una imagen de máquina virtual de Ubuntu
+from azure.devops import AzureDevOpsClient
+from azure.identity import DefaultAzureCredential
+from azure.mgmt.machinelearning import MachineLearningManagementClient
+from azure.mgmt.machinelearning.models import MonitoringConfiguration
+import subprocess
+import requests
 
-steps:
-# Paso 1: Configurar el entorno
-- script: echo "Configurando el entorno..."
-  displayName: 'Configurar el Entorno'
+# Configuraciones iniciales
+organization_url = "https://dev.azure.com/your_organization"
+personal_access_token = "your_pat"
+project_name = "your_project_name"
 
-# Paso 2: Instalar dependencias (Ejemplo: si tienes un proyecto Node.js)
-- script: |
-    npm install
-  displayName: 'Instalar Dependencias'
+# Crear cliente de Azure DevOps
+client = AzureDevOpsClient(organization_url, personal_access_token)
 
-# Paso 3: Ejecutar pruebas (Ejemplo: si tienes pruebas automatizadas)
-- script: |
-    npm test
-  displayName: 'Ejecutar Pruebas'
+# Configuración del cliente de Machine Learning
+credential = DefaultAzureCredential()
+ml_client = MachineLearningManagementClient(credential, "your_subscription_id")
 
-# Paso 4: Construir el proyecto (si es necesario)
-- script: |
-    npm run build
-  displayName: 'Construir Proyecto'
+def run_pipeline():
+    try:
+        print("Configurando el entorno...")
+        install_dependencies()
+        run_tests()
+        build_project()
+        deploy_iot_hub()
+        deploy_device_provisioning_service()
+        deploy_data_factory()
+        deploy_data_lake()
+        deploy_stream_analytics()
+        deploy_synapse_analytics()
+        deploy_azure_functions()
+        deploy_bot_service()
+        deploy_openai_services()
+        deploy_azure_ml()
+        configure_drift_monitoring()
+        configure_monitoring()
+        send_notification()
+    except Exception as e:
+        print(f"Error en el pipeline: {e}")
 
-# Paso 5: Desplegar a Azure IoT Hub
-- task: AzureCLI@2
-  inputs:
-    azureSubscription: 'Your Azure Service Connection'
-    scriptType: 'bash'
-    scriptLocation: 'inlineScript'
-    inlineScript: |
-      echo "Desplegando dispositivo IoT en Azure IoT Hub..."
-  displayName: 'Desplegar IoT Hub'
+def install_dependencies():
+    try:
+        print("Instalando dependencias...")
+        subprocess.run(["pip", "install", "-r", "requirements.txt"], check=True)
+    except subprocess.CalledProcessError:
+        print("Error al instalar dependencias.")
+        raise
 
-# Paso 6: Desplegar Azure Data Factory
-- task: AzureDataFactoryV2@0
-  inputs:
-    azureSubscription: 'Your Azure Service Connection'
-    dataFactoryName: 'YourDataFactoryName'
-    resourceGroupName: 'YourResourceGroupName'
-    operation: 'Create or Update'
-  displayName: 'Desplegar Azure Data Factory'
+def run_tests():
+    try:
+        print("Ejecutando pruebas...")
+        subprocess.run(["pytest"], check=True)
+    except subprocess.CalledProcessError:
+        print("Error al ejecutar pruebas.")
+        raise
 
-# Paso 7: Desplegar Azure Data Lake Storage
-- task: AzureCLI@2
-  inputs:
-    azureSubscription: 'Your Azure Service Connection'
-    scriptType: 'bash'
-    scriptLocation: 'inlineScript'
-    inlineScript: |
-      echo "Desplegando Azure Data Lake Storage..."
-  displayName: 'Desplegar Azure Data Lake Storage'
+def build_project():
+    try:
+        print("Construyendo el proyecto...")
+        subprocess.run(["python", "setup.py", "build"], check=True)
+    except subprocess.CalledProcessError:
+        print("Error al construir el proyecto.")
+        raise
 
-# Paso 8: Desplegar Azure Stream Analytics
-- task: AzureStreamAnalytics@0
-  inputs:
-    azureSubscription: 'Your Azure Service Connection'
-    jobName: 'YourStreamAnalyticsJobName'
-    resourceGroupName: 'YourResourceGroupName'
-    operation: 'Create or Update'
-  displayName: 'Desplegar Azure Stream Analytics'
+def deploy_iot_hub():
+    try:
+        print("Desplegando Azure IoT Hub...")
+        subprocess.run(["az", "iot", "hub", "create", "--name", "YourIoTHubName", "--resource-group", "YourResourceGroupName", "--sku", "F1"], check=True)
+    except subprocess.CalledProcessError:
+        print("Error al desplegar IoT Hub.")
+        raise
 
-# Paso 9: Desplegar Azure Synapse Analytics
-- task: AzureSynapse@0
-  inputs:
-    azureSubscription: 'Your Azure Service Connection'
-    workspaceName: 'YourSynapseWorkspaceName'
-    operation: 'Create or Update'
-  displayName: 'Desplegar Azure Synapse Analytics'
+def deploy_device_provisioning_service():
+    try:
+        print("Desplegando Device Provisioning Service...")
+        subprocess.run(["az", "iot", "dps", "create", "--name", "YourDPSName", "--resource-group", "YourResourceGroupName"], check=True)
+    except subprocess.CalledProcessError:
+        print("Error al desplegar Device Provisioning Service.")
+        raise
 
-# Paso 10: Desplegar Azure Functions
-- task: AzureFunctionApp@1
-  inputs:
-    azureSubscription: 'Your Azure Service Connection'
-    appType: 'functionApp'
-    appName: 'YourFunctionAppName'
-    package: '$(System.DefaultWorkingDirectory)/**/*.zip'  # Asegúrate de que tu función esté empaquetada correctamente
-  displayName: 'Desplegar Azure Functions'
+def deploy_data_factory():
+    try:
+        print("Desplegando Azure Data Factory...")
+        subprocess.run(["az", "datafactory", "create", "--name", "YourDataFactoryName", "--resource-group", "YourResourceGroupName"], check=True)
+    except subprocess.CalledProcessError:
+        print("Error al desplegar Data Factory.")
+        raise
 
-# Paso 11: Crear y Configurar la Base de Datos para Azure Functions
-- task: AzureCLI@2
-  inputs:
-    azureSubscription: 'Your Azure Service Connection'
-    scriptType: 'bash'
-    scriptLocation: 'inlineScript'
-    inlineScript: |
-      echo "Creando y configurando la base de datos para Azure Functions..."
-      # Aquí puedes agregar comandos para crear la base de datos, por ejemplo usando Azure CLI o ARM templates.
-  displayName: 'Crear Base de Datos para Azure Functions'
+def deploy_data_lake():
+    try:
+        print("Desplegando Azure Data Lake Storage...")
+        subprocess.run(["az", "storage", "account", "create", "--name", "YourDataLakeName", "--resource-group", "YourResourceGroupName", "--location", "YourLocation", "--sku", "StorageV2"], check=True)
+    except subprocess.CalledProcessError:
+        print("Error al desplegar Data Lake Storage.")
+        raise
 
-# Paso 12: Desplegar Azure Bot Service
-- task: AzureCLI@2
-  inputs:
-    azureSubscription: 'Your Azure Service Connection'
-    scriptType: 'bash'
-    scriptLocation: 'inlineScript'
-    inlineScript: |
-      echo "Desplegando Azure Bot Service..."
-  displayName: 'Desplegar Azure Bot Service'
+def deploy_stream_analytics():
+    try:
+        print("Desplegando Azure Stream Analytics...")
+        subprocess.run(["az", "stream-analytics", "job", "create", "--name", "YourJobName", "--resource-group", "YourResourceGroupName", "--location", "YourLocation"], check=True)
+    except subprocess.CalledProcessError:
+        print("Error al desplegar Stream Analytics.")
+        raise
 
-# Paso 13: Desplegar Azure OpenAI / Azure Cognitive Services
-- task: AzureCLI@2
-  inputs:
-    azureSubscription: 'Your Azure Service Connection'
-    scriptType: 'bash'
-    scriptLocation: 'inlineScript'
-    inlineScript: |
-      echo "Configurando Azure OpenAI / Cognitive Services..."
-  displayName: 'Desplegar Azure OpenAI / Cognitive Services'
+def deploy_synapse_analytics():
+    try:
+        print("Desplegando Azure Synapse Analytics...")
+        subprocess.run(["az", "synapse", "workspace", "create", "--name", "YourSynapseWorkspaceName", "--resource-group", "YourResourceGroupName", "--location", "YourLocation"], check=True)
+    except subprocess.CalledProcessError:
+        print("Error al desplegar Synapse Analytics.")
+        raise
 
-# Paso 14: Desplegar Azure Machine Learning
-- task: AzureML@1
-  inputs:
-    azureSubscription: 'Your Azure Service Connection'
-    workspaceName: 'YourMLWorkspaceName'
-    operation: 'Create or Update'
-  displayName: 'Desplegar Azure Machine Learning'
+def deploy_azure_functions():
+    try:
+        print("Desplegando Azure Functions...")
+        subprocess.run(["az", "functionapp", "create", "--name", "YourFunctionAppName", "--resource-group", "YourResourceGroupName", "--plan", "YourAppServicePlan", "--runtime", "python"], check=True)
+    except subprocess.CalledProcessError:
+        print("Error al desplegar Azure Functions.")
+        raise
 
-# Paso 15: Configurar Monitoreo de Drift
-- task: AzureCLI@2
-  inputs:
-    azureSubscription: 'Your Azure Service Connection'
-    scriptType: 'bash'
-    scriptLocation: 'inlineScript'
-    inlineScript: |
-      echo "Configurando monitoreo de drift para modelos de ML..."
-      # Aquí puedes agregar comandos para habilitar el monitoreo de drift
-  displayName: 'Configurar Monitoreo de Drift'
+def deploy_bot_service():
+    try:
+        print("Desplegando Azure Bot Service...")
+        subprocess.run(["az", "bot", "create", "--name", "YourBotName", "--resource-group", "YourResourceGroupName", "--kind", "webapp"], check=True)
+    except subprocess.CalledProcessError:
+        print("Error al desplegar Azure Bot Service.")
+        raise
 
-# Paso 16: Configurar Azure Monitor y Application Insights
-- task: AzureCLI@2
-  inputs:
-    azureSubscription: 'Your Azure Service Connection'
-    scriptType: 'bash'
-    scriptLocation: 'inlineScript'
-    inlineScript: |
-      echo "Configurando Azure Monitor y Application Insights..."
-      # Aquí puedes agregar comandos para habilitar el monitoreo y logging
-  displayName: 'Configurar Monitoreo y Logging'
+def deploy_openai_services():
+    try:
+        print("Configurando Azure OpenAI / Cognitive Services...")
+        subprocess.run(["az", "cognitiveservices", "account", "create", "--name", "YourOpenAIName", "--resource-group", "YourResourceGroupName", "--kind", "CognitiveServices", "--sku", "S0"], check=True)
+    except subprocess.CalledProcessError:
+        print("Error al desplegar OpenAI / Cognitive Services.")
+        raise
 
-# Paso 17: Notificaciones (opcional)
-- task: SendEmail@1  # Usa un task adecuado para notificaciones
-  inputs:
-    to: 'claraibarzabalr@gmail.com'
-    subject: 'Pipeline Completo'
-    body: 'El pipeline se ha completado exitosamente.'
-  displayName: 'Enviar Notificación'
+def deploy_azure_ml():
+    try:
+        print("Desplegando Azure Machine Learning...")
+        subprocess.run(["az", "ml", "workspace", "create", "--name", "YourMLWorkspaceName", "--resource-group", "YourResourceGroupName"], check=True)
+    except subprocess.CalledProcessError:
+        print("Error al desplegar Azure Machine Learning.")
+        raise
+
+def configure_drift_monitoring():
+    try:
+        print("Configurando monitoreo de drift para modelos de ML...")
+        monitoring_config = MonitoringConfiguration(
+            drift_monitoring=True,
+            drift_threshold=0.1,  # Ajusta según tus necesidades
+            alert_email="your_email@example.com"
+        )
+        ml_client.monitoring.create_or_update("YourResourceGroupName", "YourMLWorkspaceName", "YourModelName", monitoring_config)
+        print("Monitoreo de drift configurado.")
+    except Exception as e:
+        print(f"Error al configurar monitoreo de drift: {e}")
+        raise
+
+def configure_monitoring():
+    try:
+        print("Configurando Azure Monitor y Application Insights...")
+        # Habilitar Azure Monitor
+        subprocess.run(["az", "monitor", "log", "create", "--resource-group", "YourResourceGroupName"], check=True)
+        # Configurar Application Insights
+        subprocess.run(["az", "monitor", "app-insights", "component", "create", "--app", "YourAppName", "--resource-group", "YourResourceGroupName", "--location", "YourLocation"], check=True)
+        print("Monitoreo y logging configurados.")
+    except Exception as e:
+        print(f"Error al configurar monitoreo: {e}")
+        raise
+
+def send_notification():
+    try:
+        print("Enviando notificación...")
+        response = requests.post(
+            "https://api.emailservice.com/send",
+            data={
+                "to": "your_email@example.com",
+                "subject": "Pipeline Completo",
+                "body": "El pipeline se ha completado exitosamente."
+            }
+        )
+        if response.status_code != 200:
+            print("Error al enviar la notificación.")
+    except Exception as e:
+        print(f"Error al enviar notificación: {e}")
+
+if __name__ == "__main__":
+    run_pipeline()
 
