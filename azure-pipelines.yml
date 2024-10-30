@@ -1,0 +1,157 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+# Azure DevOps Pipeline para el Proyecto Agro
+# Este pipeline está diseñado para construir y desplegar los recursos de tu proyecto.
+
+trigger:
+- main  # El pipeline se activará con cada commit en la rama 'main'
+
+pool:
+  vmImage: ubuntu-latest  # Usa una imagen de máquina virtual de Ubuntu
+
+steps:
+# Paso 1: Configurar el entorno
+- script: echo "Configurando el entorno..."
+  displayName: 'Configurar el Entorno'
+
+# Paso 2: Instalar dependencias (Ejemplo: si tienes un proyecto Node.js)
+- script: |
+    npm install
+  displayName: 'Instalar Dependencias'
+
+# Paso 3: Ejecutar pruebas (Ejemplo: si tienes pruebas automatizadas)
+- script: |
+    npm test
+  displayName: 'Ejecutar Pruebas'
+
+# Paso 4: Construir el proyecto (si es necesario)
+- script: |
+    npm run build
+  displayName: 'Construir Proyecto'
+
+# Paso 5: Desplegar a Azure IoT Hub
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'Your Azure Service Connection'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      echo "Desplegando dispositivo IoT en Azure IoT Hub..."
+  displayName: 'Desplegar IoT Hub'
+
+# Paso 6: Desplegar Azure Data Factory
+- task: AzureDataFactoryV2@0
+  inputs:
+    azureSubscription: 'Your Azure Service Connection'
+    dataFactoryName: 'YourDataFactoryName'
+    resourceGroupName: 'YourResourceGroupName'
+    operation: 'Create or Update'
+  displayName: 'Desplegar Azure Data Factory'
+
+# Paso 7: Desplegar Azure Data Lake Storage
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'Your Azure Service Connection'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      echo "Desplegando Azure Data Lake Storage..."
+  displayName: 'Desplegar Azure Data Lake Storage'
+
+# Paso 8: Desplegar Azure Stream Analytics
+- task: AzureStreamAnalytics@0
+  inputs:
+    azureSubscription: 'Your Azure Service Connection'
+    jobName: 'YourStreamAnalyticsJobName'
+    resourceGroupName: 'YourResourceGroupName'
+    operation: 'Create or Update'
+  displayName: 'Desplegar Azure Stream Analytics'
+
+# Paso 9: Desplegar Azure Synapse Analytics
+- task: AzureSynapse@0
+  inputs:
+    azureSubscription: 'Your Azure Service Connection'
+    workspaceName: 'YourSynapseWorkspaceName'
+    operation: 'Create or Update'
+  displayName: 'Desplegar Azure Synapse Analytics'
+
+# Paso 10: Desplegar Azure Functions
+- task: AzureFunctionApp@1
+  inputs:
+    azureSubscription: 'Your Azure Service Connection'
+    appType: 'functionApp'
+    appName: 'YourFunctionAppName'
+    package: '$(System.DefaultWorkingDirectory)/**/*.zip'  # Asegúrate de que tu función esté empaquetada correctamente
+  displayName: 'Desplegar Azure Functions'
+
+# Paso 11: Crear y Configurar la Base de Datos para Azure Functions
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'Your Azure Service Connection'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      echo "Creando y configurando la base de datos para Azure Functions..."
+      # Aquí puedes agregar comandos para crear la base de datos, por ejemplo usando Azure CLI o ARM templates.
+  displayName: 'Crear Base de Datos para Azure Functions'
+
+# Paso 12: Desplegar Azure Bot Service
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'Your Azure Service Connection'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      echo "Desplegando Azure Bot Service..."
+  displayName: 'Desplegar Azure Bot Service'
+
+# Paso 13: Desplegar Azure OpenAI / Azure Cognitive Services
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'Your Azure Service Connection'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      echo "Configurando Azure OpenAI / Cognitive Services..."
+  displayName: 'Desplegar Azure OpenAI / Cognitive Services'
+
+# Paso 14: Desplegar Azure Machine Learning
+- task: AzureML@1
+  inputs:
+    azureSubscription: 'Your Azure Service Connection'
+    workspaceName: 'YourMLWorkspaceName'
+    operation: 'Create or Update'
+  displayName: 'Desplegar Azure Machine Learning'
+
+# Paso 15: Configurar Monitoreo de Drift
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'Your Azure Service Connection'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      echo "Configurando monitoreo de drift para modelos de ML..."
+      # Aquí puedes agregar comandos para habilitar el monitoreo de drift
+  displayName: 'Configurar Monitoreo de Drift'
+
+# Paso 16: Configurar Azure Monitor y Application Insights
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'Your Azure Service Connection'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      echo "Configurando Azure Monitor y Application Insights..."
+      # Aquí puedes agregar comandos para habilitar el monitoreo y logging
+  displayName: 'Configurar Monitoreo y Logging'
+
+# Paso 17: Notificaciones (opcional)
+- task: SendEmail@1  # Usa un task adecuado para notificaciones
+  inputs:
+    to: 'claraibarzabalr@gmail.com'
+    subject: 'Pipeline Completo'
+    body: 'El pipeline se ha completado exitosamente.'
+  displayName: 'Enviar Notificación'
+
