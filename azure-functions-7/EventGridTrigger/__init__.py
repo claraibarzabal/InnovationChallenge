@@ -11,35 +11,47 @@ database_name = "sustentabilidad-grupo7"
 container_name = "ToDoList"
 
 # Conexión a Cosmos DB
-cosmos_client = CosmosClient(cosmos_endpoint, cosmos_key)
-database = cosmos_client.get_database_client(database_name)
+def get_cosmos_client():
+    return CosmosClient(cosmos_endpoint, cosmos_key)
 
-# Verificar si el contenedor existe, si no, crearlo
-try:
-    container = database.get_container_client(container_name)
-    container.read()
-except Exception:
-    container = database.create_container(
-        id=container_name,
-        partition_key=PartitionKey(path="/id"),
-        offer_throughput=400
-    )
+def get_container():
+    cosmos_client = get_cosmos_client()
+    database = cosmos_client.get_database_client(database_name)
+    
+    try:
+        container = database.get_container_client(container_name)
+        container.read()
+    except Exception as e:
+        logging.info(f"Container not found, creating a new one: {str(e)}")
+        container = database.create_container(
+            id=container_name,
+            partition_key=PartitionKey(path="/id"),
+            offer_throughput=400
+        )
+    return container
 
 app = func.FunctionApp()
 
 @app.event_grid_trigger(arg_name="azeventgrid")
 def main(azeventgrid: func.EventGridEvent):
     logging.info('Python EventGrid trigger processed an event')
+    
     try:
         req_body = azeventgrid.get_json()
         store_event(req_body)
-        return func.HttpResponse("Datos almacenados en Cosmos DB", status_code=201)
+        logging.info("Datos almacenados en Cosmos DB")
     except Exception as e:
         logging.error(f"Error: {str(e)}")
-        return func.HttpResponse(f"Error: {str(e)}", status_code=500)
 
 def store_event(req_body):
+    container = get_container()  # Obtener el contenedor aquí
+    
+    # Validar el req_body
+    if not isinstance(req_body, dict):
+        logging.error("El cuerpo de la solicitud no es un diccionario.")
+        return
+
     if 'id' not in req_body:
         req_body['id'] = str(uuid.uuid4())
+    
     container.upsert_item(req_body)
-    logging.info("Datos almacenados en Cosmos DB")
