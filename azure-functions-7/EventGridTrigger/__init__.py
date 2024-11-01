@@ -28,19 +28,18 @@ except Exception:
 app = func.FunctionApp()
 
 @app.event_grid_trigger(arg_name="azeventgrid")
-def EventGridTrigger(azeventgrid: func.EventGridEvent):
+def main(azeventgrid: func.EventGridEvent):
     logging.info('Python EventGrid trigger processed an event')
-
     try:
         req_body = azeventgrid.get_json()
-
-        if 'id' not in req_body:
-            req_body['id'] = str(uuid.uuid4())
-
-        container.upsert_item(req_body)
-
-        logging.info("Datos almacenados en Cosmos DB")
+        store_event(req_body)
         return func.HttpResponse("Datos almacenados en Cosmos DB", status_code=201)
     except Exception as e:
         logging.error(f"Error: {str(e)}")
         return func.HttpResponse(f"Error: {str(e)}", status_code=500)
+
+def store_event(req_body):
+    if 'id' not in req_body:
+        req_body['id'] = str(uuid.uuid4())
+    container.upsert_item(req_body)
+    logging.info("Datos almacenados en Cosmos DB")
