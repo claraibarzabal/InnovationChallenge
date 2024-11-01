@@ -46,3 +46,18 @@ def EventGridTrigger(azeventgrid: func.EventGridEvent):
     except Exception as e:
         logging.error(f"Error: {str(e)}")
         return func.HttpResponse(f"Error: {str(e)}", status_code=500)
+
+
+
+
+"""
+Conexion con key vault seria asi:
+
+# Conexión a Key Vault
+key_vault_name = "<tu_key_vault_name>"
+kv_uri = f"https://{key_vault_name}.vault.azure.net"
+credential = DefaultAzureCredential()
+client = SecretClient(vault_url=kv_uri, credential=credential)
+
+cosmos_key = client.get_secret("cosmosdb-primary-key").value
+"""
