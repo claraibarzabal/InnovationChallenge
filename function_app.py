@@ -1,63 +1,15 @@
-import logging
 import azure.functions as func
-from azure.cosmos import CosmosClient, PartitionKey
-import uuid
-
-# Configuración de Cosmos DB
-cosmos_endpoint = "https://cosmosdb-7.documents.azure.com:443/"
-cosmos_key = "secret_key"
-database_name = "sustentabilidad-grupo7"  # Nombre de la base de datos
-container_name = "ToDoList"  # Nombre del contenedor
-
-# Conexión a Cosmos DB
-cosmos_client = CosmosClient(cosmos_endpoint, cosmos_key)
-database = cosmos_client.get_database_client(database_name)
-
-# Verificar si el contenedor existe, si no, crearlo
-try:
-    container = database.get_container_client(container_name)
-    container.read()  # Esto verificará si el contenedor existe
-except Exception:
-    container = database.create_container(
-        id=container_name,
-        partition_key=PartitionKey(path="/id"),
-        offer_throughput=400  # Ajusta según tus necesidades
-    )
+from http.http_trigger import app as http_app
+from timer.timer_trigger import app as timer_app
+from queue.queue_trigger import app as queue_app
+from blob.blob_trigger import app as blob_app
+from eventgrid.eventgrid_trigger import app as eventgrid_app
 
 app = func.FunctionApp()
 
-@app.event_grid_trigger(arg_name="azeventgrid")
-def EventGridTrigger(azeventgrid: func.EventGridEvent):
-    logging.info('Python EventGrid trigger processed an event')
-
-    try:
-        # Obtiene el cuerpo del evento, que contiene los datos
-        req_body = azeventgrid.get_json()
-
-        # Genera un nuevo ID si no existe en el JSON
-        if 'id' not in req_body:
-            req_body['id'] = str(uuid.uuid4())
-
-        # Almacena los datos en Cosmos DB
-        container.upsert_item(req_body)
-
-        logging.info("Datos almacenados en Cosmos DB")
-        return func.HttpResponse("Datos almacenados en Cosmos DB", status_code=201)
-    except Exception as e:
-        logging.error(f"Error: {str(e)}")
-        return func.HttpResponse(f"Error: {str(e)}", status_code=500)
-
-
-
-
-"""
-Conexion con key vault seria asi:
-
-# Conexión a Key Vault
-key_vault_name = "<tu_key_vault_name>"
-kv_uri = f"https://{key_vault_name}.vault.azure.net"
-credential = DefaultAzureCredential()
-client = SecretClient(vault_url=kv_uri, credential=credential)
-
-cosmos_key = client.get_secret("cosmosdb-primary-key").value
-"""
+# Registrar las aplicaciones de los triggers
+app.register_functions(http_app)
+app.register_functions(timer_app)
+app.register_functions(queue_app)
+app.register_functions(blob_app)
+app.register_functions(eventgrid_app)  # Registrar el Event Grid Trigger
