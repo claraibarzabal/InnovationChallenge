@@ -1,6 +1,5 @@
-azure-devops==7.1.0
+azure-devops
 azure-identity==1.12.0
-azure-mgmt-machinelearning==1.0.0
 requests==2.26.0
 pytest==6.2.5
 azure-functions
