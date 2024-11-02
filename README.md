@@ -4,6 +4,9 @@
 
 ### Asistente de IA Automatizado con Sensores IoT en Azure para Optimización Agrícola
 
+### Presentación
+https://drive.google.com/drive/u/0/folders/1fxrwIPqJuTCsrSGDcdWnkb474ZiZB87E
+
 ### Descripción:
 
 Este asistente virtual utiliza datos en tiempo real de un sensor IoT, que recopila información sobre las condiciones del suelo (como humedad y temperatura) y pronósticos climáticos (precipitación, velocidad del viento) a través de una API. Estos datos son almacenados en **Azure Cosmos DB** y gestionados mediante **Azure IoT Hub**.
