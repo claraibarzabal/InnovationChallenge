@@ -5,7 +5,7 @@
 ### Asistente de IA Automatizado con Sensores IoT en Azure para Optimización Agrícola
 
 ### Presentación
-https://drive.google.com/drive/u/0/folders/1fxrwIPqJuTCsrSGDcdWnkb474ZiZB87E
+[Acceder a la carpeta del proyecto](https://drive.google.com/drive/u/0/folders/1fxrwIPqJuTCsrSGDcdWnkb474ZiZB87E)
 
 ### Descripción:
 
